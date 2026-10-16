@@ -1,7 +1,14 @@
 import mysql2 from 'mysql2'
 import express from 'express'
+import cors from 'cors'
 const app = express();
 const PORT = 8000;
+
+
+// 브라우저가 보안상 이유로 api 요청을 차단하는데 api 요청 차단을 방지하기 위한 라이브러리임
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
 
 // JsUser_2026! <-mysql 비밀번호
 const db = mysql2.createConnection({
@@ -20,6 +27,19 @@ db.connect((err) => {
 })
 
 app.use(express.json())
+
+app.get("/api/products", (req, res) => {
+    
+    const sql = 'SELECT * FROM product'
+    db.query(sql, (err, results) =>{
+        if(err){
+            console.log("상품 조회 에러", err)
+            res.status(500).send("상품 조회 중 오류가 발생했습니다")
+            return
+        }
+        res.json(results)
+    })
+})
 
 app.get("/api/products/:id", (req, res) => {
     const productId = req.params.id
